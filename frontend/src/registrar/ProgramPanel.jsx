@@ -29,8 +29,6 @@ import {
   FormControl, Select, MenuItem
 } from "@mui/material";
 
-
-
 const ProgramPanel = () => {
   const settings = useContext(SettingsContext);
 

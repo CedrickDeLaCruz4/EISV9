@@ -254,9 +254,6 @@ const CoursePanel = () => {
     }
   };
 
-
-
-
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredCourses = courseList.filter((c) =>

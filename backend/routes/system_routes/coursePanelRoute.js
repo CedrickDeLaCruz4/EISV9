@@ -44,7 +44,7 @@ router.post("/adding_course", async (req, res) => {
 
     const [rows] = await db3.query(
       "SELECT course_id FROM course_table WHERE course_code = ?",
-      [normalized_code]
+      [course_code]
     );
 
     if (rows.length > 0) {
@@ -56,7 +56,7 @@ router.post("/adding_course", async (req, res) => {
        (course_code, course_description, course_unit, lec_unit, lab_unit, prereq, corequisite)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        normalized_code,
+        course_code,
         course_description || null,
         course_unit || 0,
         lec_unit || 0,
@@ -108,10 +108,11 @@ router.put("/update_course/:id", async (req, res) => {
       : normalized_current_code;
 
     // Duplicate check if changed
-    if (course_code && final_course_code !== normalized_current_code) {
+    // && final_course_code !== normalized_current_code
+    if (course_code) {
       const [rows] = await db3.query(
         "SELECT course_id FROM course_table WHERE course_code = ? AND course_id != ?",
-        [final_course_code, id]
+        [course_code, id]
       );
 
       if (rows.length > 0) {
@@ -130,7 +131,7 @@ router.put("/update_course/:id", async (req, res) => {
          corequisite = ?
        WHERE course_id = ?`,
       [
-        final_course_code,
+        course_code,
         course_description ?? current.course_description,
         course_unit ?? current.course_unit,
         lec_unit ?? current.lec_unit,
