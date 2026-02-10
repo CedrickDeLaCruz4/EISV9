@@ -598,23 +598,32 @@ const ApplicantDashboard = (props) => {
   const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/announcements/applicant`);
+      setAnnouncements(res.data); // 👈 no .data.data
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const role = localStorage.getItem("role"); // ✅ get the current user role
-        const res = await axios.get(
-          `${API_BASE_URL}/api/announcements?role=${role}`
-        );
-
-        // Sort latest first
-        const sorted = res.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        setAnnouncements(sorted);
+        const role = localStorage.getItem("role");
+        const res = await axios.get(`${API_BASE_URL}/api/announcements?role=${role}`);
+        setAnnouncements(res.data);
       } catch (err) {
-        console.error("❌ Failed to fetch announcements:", err);
+        console.error(err);
       }
     };
 
     fetchAnnouncements();
   }, []);
+
 
 
   const formatDate = (dateString) => {
@@ -691,7 +700,7 @@ const ApplicantDashboard = (props) => {
 
 
 
-const backgroundImage = settings?.bg_image
+  const backgroundImage = settings?.bg_image
     ? `url(${API_BASE_URL}${settings.bg_image})`
     : "linear-gradient(to right, #e0e0e0, #bdbdbd)"
 
@@ -712,7 +721,7 @@ const backgroundImage = settings?.bg_image
         sx={{
           position: "absolute",
           inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
+          backgroundColor: "rgba(0, 0, 0, 0.1)",
           backdropFilter: "blur(0.5px)",
           WebkitBackdropFilter: "blur(0.5px)",
           zIndex: 0,
@@ -1064,7 +1073,7 @@ const backgroundImage = settings?.bg_image
                           {a.file_path && (
                             <>
                               <img
-                                src={`${API_BASE_URL}/uploads/announcement${a.file_path}`}
+                               src={`${API_BASE_URL}/uploads/announcement/${a.file_path}`}
                                 alt={a.title}
                                 style={{
                                   width: "100%",

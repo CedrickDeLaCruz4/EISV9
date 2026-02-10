@@ -13411,6 +13411,7 @@ app.get("/api/student_details/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
+    console.log("Fetching student details for person_id:", id);
     const [rows] = await db3.execute(
       `
     SELECT DISTINCT
@@ -13427,10 +13428,12 @@ app.get("/api/student_details/:id", async (req, res) => {
       INNER JOIN section_table AS st ON dst.section_id = st.id
       INNER JOIN student_status_table AS sst ON snt.student_number = sst.student_number
       INNER JOIN year_level_table AS ylt ON sst.year_level_id = ylt.year_level_id
-      INNER JOIN active_school_year_table AS sy ON sst.active_curriculum = sy.id
+      INNER JOIN active_school_year_table AS sy ON sst.active_school_year_id = sy.id
     WHERE pt.person_id = ?`,
       [id],
     );
+
+
     if (rows.length === 0) {
       return res.status(404).json({ error: "Person not found" });
     }
@@ -13441,6 +13444,7 @@ app.get("/api/student_details/:id", async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 });
+
 
 /* Student Schedule */
 //GET Student Current Assigned Schedule
@@ -14907,9 +14911,11 @@ app.get("/api/announcements", async (req, res) => {
         id,
         title,
         content,
+        valid_days,
         file_path,
         expires_at,
-        target_role
+        target_role,
+        created_at
       FROM announcements
       WHERE expires_at >= NOW()
       ORDER BY created_at DESC
@@ -14918,89 +14924,68 @@ app.get("/api/announcements", async (req, res) => {
     const [rows] = await db.query(sql);
     console.log("Fetched announcements:", rows);
 
-    res.json({
-      success: true,
-      data: rows,
-    });
-  } catch (error) {
-    console.error("Announcements DB error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch announcements",
-    });
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
   }
 });
-
 app.post(
   "/api/announcements",
   announcementUpload.single("image"),
   async (req, res) => {
     console.log("BODY:", req.body);
     console.log("FILE:", req.file);
+
     const {
       title,
       content,
       valid_days,
       target_role,
-      creator_role,
-      creator_id,
     } = req.body;
 
-    const allowedDays = ["1", "3", "7", "14", "30", "60", "90"];
+    // ✅ Validate valid_days
+    const allowedDays = ["1", "3", "7", "14", "30", "60", "90", "120", "180"];
     if (!valid_days || !allowedDays.includes(valid_days.toString())) {
       return res.status(400).json({ error: "Invalid valid_days value" });
     }
 
+    // ✅ Validate target role
     if (!["student", "faculty", "applicant"].includes(target_role)) {
       return res.status(400).json({ error: "Invalid target_role" });
     }
 
-    if (
-      !["student", "faculty", "applicant", "registrar"].includes(creator_role)
-    ) {
-      return res.status(400).json({ error: "Invalid creator_role" });
-    }
-
     try {
+      // ✅ FIXED SQL (5 columns, 5 values)
       const [result] = await db.execute(
         `INSERT INTO announcements 
-         (title, content, valid_days, target_role, creator_role, creator_id, expires_at)
-         VALUES (?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL ? DAY))`,
+         (title, content, valid_days, target_role, expires_at)
+         VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL ? DAY))`,
         [
           title,
           content,
           valid_days,
           target_role,
-          creator_role,
-          creator_id,
           valid_days,
-        ],
+        ]
       );
 
       const announcementId = result.insertId;
       let filename = null;
 
+      // ✅ Handle image upload
       if (req.file) {
         const ext = path.extname(req.file.originalname).toLowerCase();
         filename = `${announcementId}_announcement${ext}`;
-        const oldPath = path.join(
-          __dirname,
-          "uploads",
-          "announcement",
-          req.file.filename,
-        );
-        const newPath = path.join(
-          __dirname,
-          "uploads",
-          "announcement",
-          filename,
-        );
+
+        const oldPath = path.join(__dirname, "uploads", "announcement", req.file.filename);
+        const newPath = path.join(__dirname, "uploads", "announcement", filename);
 
         fs.renameSync(oldPath, newPath);
 
         await db.execute(
           "UPDATE announcements SET file_path = ? WHERE id = ?",
-          [filename, announcementId],
+          [filename, announcementId]
         );
       }
 
@@ -15009,12 +14994,14 @@ app.post(
         id: announcementId,
         file: filename,
       });
+
     } catch (err) {
       console.error("Error inserting announcement:", err);
       res.status(500).json({ error: "Database error" });
     }
-  },
+  }
 );
+
 
 // Update announcement by ID with optional image
 app.put(
@@ -15024,7 +15011,7 @@ app.put(
     const { id } = req.params;
     const { title, content, valid_days, target_role } = req.body;
 
-    const allowedDays = ["1", "3", "7", "14", "30", "60", "90"];
+    const allowedDays = ["1", "3", "7", "14", "30", "60", "90", "120", "180"];
     if (!allowedDays.includes(valid_days.toString())) {
       return res.status(400).json({ error: "Invalid valid_days value" });
     }
@@ -15080,31 +15067,6 @@ app.put(
   },
 );
 
-// Fetch valid announcements
-app.get("/api/announcements", async (req, res) => {
-  const { role } = req.query;
-
-  try {
-    let sql = `
-      SELECT * FROM announcements 
-      WHERE expires_at > NOW()
-    `;
-
-    let params = [];
-
-    if (role) {
-      sql += " AND (target_role = ? OR target_role = 'all')";
-      params.push(role);
-    }
-
-    const [rows] = await db.query(sql, params);
-    console.log("Fetched announcements:", rows);
-    res.json(rows);
-  } catch (err) {
-    console.error("Error fetching announcements:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 
 app.delete("/api/announcements/:id", async (req, res) => {
   const { id } = req.params;
@@ -15150,6 +15112,20 @@ app.get("/api/announcements/faculty", async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 });
+
+app.get("/api/announcements/applicant", async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      "SELECT * FROM announcements WHERE target_role = 'applicant' AND expires_at > NOW() ORDER BY created_at DESC"
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching applicant announcements:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+
 
 app.get("/api/college/persons", async (req, res) => {
   try {
@@ -19604,43 +19580,6 @@ io.on("connection", (socket) => {
   });
 });
 
-app.get("/api/student_details/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    console.log("Fetching student details for person_id:", id);
-    const [rows] = await db3.execute(
-      `
-    SELECT DISTINCT
-      IFNULL(pgt.program_description, 'Not Currently Enrolled') AS program_description,
-      IFNULL(st.description, 'Not Currently Enrolled') AS section_description,
-      IFNULL(pgt.program_code, 'Not Currently Enrolled') AS program_code,
-      IFNULL(ylt.year_level_description, 'Not Currently Enrolled') AS year_level
-    FROM enrolled_subject AS es
-      INNER JOIN student_numbering_table AS snt ON es.student_number = snt.student_number
-      INNER JOIN person_table AS pt ON snt.person_id = pt.person_id
-      INNER JOIN curriculum_table AS cct ON es.curriculum_id = cct.curriculum_id
-      INNER JOIN program_table AS pgt ON cct.program_id = pgt.program_id
-      INNER JOIN dprtmnt_section_table AS dst ON es.department_section_id = dst.id
-      INNER JOIN section_table AS st ON dst.section_id = st.id
-      INNER JOIN student_status_table AS sst ON snt.student_number = sst.student_number
-      INNER JOIN year_level_table AS ylt ON sst.year_level_id = ylt.year_level_id
-      INNER JOIN active_school_year_table AS sy ON sst.active_school_year_id = sy.id
-    WHERE pt.person_id = ?`,
-      [id],
-    );
-
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Person not found" });
-    }
-
-    res.json(rows[0]);
-  } catch (error) {
-    console.error("Error fetching person:", error);
-    res.status(500).json({ error: "Database error" });
-  }
-});
 
 
 

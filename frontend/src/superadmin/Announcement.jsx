@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { SettingsContext } from "../App";
 import axios from "axios";
 import {
@@ -87,11 +87,19 @@ const AnnouncementPanel = () => {
     const fetchAnnouncements = async () => {
         try {
             const res = await axios.get(`${API_BASE_URL}/api/announcements`);
-            setAnnouncements(res.data);
+
+            const list = (res.data?.data || res.data || []).map(a => ({
+                ...a,
+                valid_days: a.valid_days != null ? String(a.valid_days) : "7",
+            }));
+
+            setAnnouncements(list);
         } catch (err) {
             console.error(err);
+            setAnnouncements([]);
         }
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -101,8 +109,7 @@ const AnnouncementPanel = () => {
             formData.append("content", form.content);
             formData.append("valid_days", form.valid_days);
             formData.append("target_role", form.target_role);
-            formData.append("creator_role", "faculty");
-            formData.append("creator_id", employeeID);
+
             if (image) formData.append("image", image);
 
             if (editingId) {
@@ -126,17 +133,28 @@ const AnnouncementPanel = () => {
             setSnackbar({ open: true, message: "Error saving announcement!", severity: "error" });
         }
     };
+    const formRef = useRef(null);
+
 
     const handleEdit = (announcement) => {
         setForm({
-            title: announcement.title,
-            content: announcement.content,
-            valid_days: announcement.valid_days.toString(),
-            target_role: announcement.target_role,
+            title: announcement?.title ?? "",
+            content: announcement?.content ?? "",
+            valid_days: announcement?.valid_days != null
+                ? String(announcement.valid_days)
+                : "7", // fallback default
+            target_role: announcement?.target_role ?? "",
         });
-        setEditingId(announcement.id);
+
+        setEditingId(announcement?.id ?? null);
         setImage(null);
+
+        setTimeout(() => {
+            formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
     };
+
+
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [announcementToDelete, setAnnouncementToDelete] = useState(null);
@@ -200,123 +218,131 @@ const AnnouncementPanel = () => {
             <Grid container spacing={4}>
                 {/* Left: Form */}
                 <Grid item xs={12} md={4}>
-                    <Paper
-                        sx={{
-                            p: 3,
-                            border: `2px solid ${borderColor}`,
-                            borderRadius: 2,
-                            boxShadow: 2,
-                        }}
-                    >
-                        <Typography variant="h6" mb={2} color={subtitleColor}>
-                            {editingId ? "Edit Announcement" : "Create Announcement"}
-                        </Typography>
-                        <Typography fontWeight={500}>Title:</Typography>
-                        <TextField
-                            label="Title"
-                            fullWidth
-                            margin="normal"
-                            value={form.title}
-                            onChange={(e) => setForm({ ...form, title: e.target.value })}
-                            required
-                        />
-                        <Typography fontWeight={500}>Content:</Typography>
-                        <TextField
-                            label="Content"
-                            fullWidth
-                            multiline
-                            rows={3}
-                            margin="normal"
-                            value={form.content}
-                            onChange={(e) => setForm({ ...form, content: e.target.value })}
-                            required
-                        />
-                        <Typography fontWeight={500}>Valid For:</Typography>
-                        <FormControl fullWidth margin="normal">
-
-                            <InputLabel>Valid For</InputLabel>
-                            <Select
-                                value={form.valid_days}
-                                label="Valid For"
-                                onChange={(e) => setForm({ ...form, valid_days: e.target.value })}
-                            >
-                                {["1", "3", "7", "14", "30", "60", "90"].map((d) => (
-                                    <MenuItem key={d} value={d}>{d} Day(s)</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <Typography fontWeight={500}>Target Role:</Typography>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Target Role</InputLabel>
-                            <Select
-                                value={form.target_role}
-                                label="Target Role"
-                                onChange={(e) => setForm({ ...form, target_role: e.target.value })}
-                                required
-                            >
-                                <MenuItem value="student">Student</MenuItem>
-                                <MenuItem value="faculty">Faculty</MenuItem>
-                                <MenuItem value="applicant">Applicant</MenuItem>
-                            </Select>
-                        </FormControl>
-
-                        <Button
-                            variant="contained"
-                            component="label"
-                            startIcon={<CloudUploadIcon />}
-                            fullWidth
-                            sx={{ mt: 2, bgcolor: mainButtonColor }}
+                    <form onSubmit={handleSubmit}>
+                        <Paper
+                            ref={formRef}
+                            sx={{
+                                p: 3,
+                                border: `2px solid ${borderColor}`,
+                                borderRadius: 2,
+                                boxShadow: 2,
+                            }}
                         >
-                            {image ? "Change Image" : "Upload Image"}
-                            <input type="file" hidden accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
-                        </Button>
-
-                        {image && (
-                            <Box
-                                sx={{
-                                    mt: 2,
-                                    p: 1,
-                                    border: `1px solid ${borderColor}`,
-                                    borderRadius: 2,
-                                    bgcolor: "#f5f5f5",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 2,
-                                }}
+                            <Typography
+                                variant="h6"
+                                mb={2}
+                                color={editingId ? "primary" : subtitleColor}
                             >
-                                {/* Thumbnail Preview */}
+                                {editingId ? "✏️ Editing Announcement" : "Create Announcement"}
+                            </Typography>
+
+                            <Typography fontWeight={500}>Title:</Typography>
+                            <TextField
+                                label="Title"
+                                fullWidth
+                                margin="normal"
+                                value={form.title}
+                                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                required
+                            />
+                            <Typography fontWeight={500}>Content:</Typography>
+                            <TextField
+                                label="Content"
+                                fullWidth
+                                multiline
+                                rows={3}
+                                margin="normal"
+                                value={form.content}
+                                onChange={(e) => setForm({ ...form, content: e.target.value })}
+                                required
+                            />
+                            <Typography fontWeight={500}>Valid For:</Typography>
+                            <FormControl fullWidth margin="normal">
+
+                                <InputLabel>Valid For</InputLabel>
+                                <Select
+                                    value={form.valid_days}
+                                    label="Valid For"
+                                    onChange={(e) => setForm({ ...form, valid_days: e.target.value })}
+                                >
+                                    {["1", "3", "7", "14", "30", "60", "90"].map((d) => (
+                                        <MenuItem key={d} value={d}>{d} Day(s)</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <Typography fontWeight={500}>Target Role:</Typography>
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel>Target Role</InputLabel>
+                                <Select
+                                    value={form.target_role}
+                                    label="Target Role"
+                                    onChange={(e) => setForm({ ...form, target_role: e.target.value })}
+                                    required
+                                >
+                                    <MenuItem value="student">Student</MenuItem>
+                                    <MenuItem value="faculty">Faculty</MenuItem>
+                                    <MenuItem value="applicant">Applicant</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            <Button
+                                variant="contained"
+                                component="label"
+                                startIcon={<CloudUploadIcon />}
+                                fullWidth
+                                sx={{ mt: 2, bgcolor: mainButtonColor }}
+                            >
+                                {image ? "Change Image" : "Upload Image"}
+                                <input type="file" hidden accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+                            </Button>
+
+                            {image && (
                                 <Box
-                                    component="img"
-                                    src={URL.createObjectURL(image)}
-                                    alt="Uploaded Preview"
-                                    sx={{ width: 50, height: 50, objectFit: "cover", borderRadius: 1 }}
-                                />
-
-                                {/* File Name */}
-                                <Typography noWrap sx={{ flexGrow: 1 }}>
-                                    {image.name}
-                                </Typography>
-
-                                {/* Remove Button */}
-                                <IconButton
-                                    onClick={handleRemoveImage}
                                     sx={{
-                                        width: "24px",
-                                        height: "24px",
-                                        backgroundColor: "rgba(255,255,255,0.8)",
-                                        "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
+                                        mt: 2,
+                                        p: 1,
+                                        border: `1px solid ${borderColor}`,
+                                        borderRadius: 2,
+                                        bgcolor: "#f5f5f5",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 2,
                                     }}
                                 >
-                                    ✕
-                                </IconButton>
-                            </Box>
-                        )}
+                                    {/* Thumbnail Preview */}
+                                    <Box
+                                        component="img"
+                                        src={URL.createObjectURL(image)}
+                                        alt="Uploaded Preview"
+                                        sx={{ width: 50, height: 50, objectFit: "cover", borderRadius: 1 }}
+                                    />
+
+                                    {/* File Name */}
+                                    <Typography noWrap sx={{ flexGrow: 1 }}>
+                                        {image.name}
+                                    </Typography>
+
+                                    {/* Remove Button */}
+                                    <IconButton
+                                        onClick={handleRemoveImage}
+                                        sx={{
+                                            width: "24px",
+                                            height: "24px",
+                                            backgroundColor: "rgba(255,255,255,0.8)",
+                                            "&:hover": { backgroundColor: "rgba(255,255,255,1)" },
+                                        }}
+                                    >
+                                        ✕
+                                    </IconButton>
+                                </Box>
+                            )}
 
 
-                        <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }} onClick={handleSubmit}>
-                            {editingId ? "Update Announcement" : "Create Announcement"}
-                        </Button>
-                    </Paper>
+                            <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }} onClick={handleSubmit}>
+                                {editingId ? "Update Announcement" : "Create Announcement"}
+                            </Button>
+                        </Paper>
+                    </form>
                 </Grid>
 
                 {/* Right: Announcement List */}
@@ -446,7 +472,7 @@ const AnnouncementPanel = () => {
                                             </td>
 
                                             <td style={{ border: `2px solid ${borderColor}`, padding: "8px", textAlign: "center" }}>
-                                                {a.valid_days}
+                                                {Number(a.valid_days)}
                                             </td>
                                             <td style={{ border: `2px solid ${borderColor}`, padding: "8px", textAlign: "center" }}>
                                                 {a.target_role}

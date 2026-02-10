@@ -305,20 +305,29 @@ const StudentDashboard = ({ profileImage, setProfileImage }) => {
   const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/announcements/student`);
+      setAnnouncements(res.data); // 👈 no .data.data
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const role = localStorage.getItem("role"); // ✅ get the current user role
-
-        const res = await axios.get(
-          `${API_BASE_URL}/api/announcements?role=${role}`
-        );
-
-        setAnnouncements(res.data);
+        const role = localStorage.getItem("role");
+        const res = await axios.get(`${API_BASE_URL}/api/announcements?role=${role}`);
+        const data = Array.isArray(res.data) ? res.data : res.data?.data;
+        setAnnouncements(data || []);
       } catch (err) {
-        console.error("❌ Failed to fetch announcements:", err);
+        console.error(err);
       }
     };
-
     fetchAnnouncements();
   }, []);
 
@@ -358,7 +367,7 @@ const StudentDashboard = ({ profileImage, setProfileImage }) => {
   }
 
 
-const backgroundImage = settings?.bg_image
+  const backgroundImage = settings?.bg_image
     ? `url(${API_BASE_URL}${settings.bg_image})`
     : "linear-gradient(to right, #e0e0e0, #bdbdbd)"
 
@@ -379,7 +388,7 @@ const backgroundImage = settings?.bg_image
         sx={{
           position: "absolute",
           inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
+          backgroundColor: "rgba(0, 0, 0, 0.1)",
           backdropFilter: "blur(0.5px)",
           WebkitBackdropFilter: "blur(0.5px)",
           zIndex: 0,
@@ -841,7 +850,7 @@ const backgroundImage = settings?.bg_image
                     </Typography>
                   ) : (
                     <Box sx={{ maxHeight: 260, overflowY: "auto" }}>
-                      {announcements.map((a) => (
+                      {(announcements || []).map((a) => (
                         <Box
                           key={a.id}
                           sx={{
@@ -863,7 +872,7 @@ const backgroundImage = settings?.bg_image
                           {a.file_path && (
                             <>
                               <img
-                                src={`${API_BASE_URL}/uploads/${a.file_path}`}
+                                src={`${API_BASE_URL}/uploads/announcement/${a.file_path}`}
                                 alt={a.title}
                                 style={{
                                   width: "100%",
@@ -873,7 +882,7 @@ const backgroundImage = settings?.bg_image
                                   marginBottom: "6px",
                                   cursor: "pointer",
                                 }}
-                                onClick={() => setOpenImage(`${API_BASE_URL}/uploads/${a.file_path}`)}
+                                onClick={() => setOpenImage(`${API_BASE_URL}/uploads/announcement${a.file_path}`)}
                               />
 
                               <Dialog
