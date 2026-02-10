@@ -15,21 +15,8 @@ const app = express();
 const http = require("http").createServer(app);
 
 const { Server } = require("socket.io");
-const io = new Server(http, {
-  cors: {
-    origin: ["http://localhost:5173", `http://${process.env.DB_HOST_LOCAL}:5173`],
-    methods: ["GET", "POST"],
-  },
-});
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: ["http://localhost:5173", `http://${process.env.DB_HOST_LOCAL}:5173`], // ✅ Explicitly allow Vite dev server
-    credentials: true, // ✅ Allow credentials (cookies, auth)
-  }),
-);
-
 app.use(bodyparser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -42,6 +29,44 @@ app.use(
   "/ApplicantOnlineDocuments",
   express.static(path.join(__dirname, "uploads", "ApplicantOnlineDocuments")),
 );
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://192.168.50.77:5173',
+  'http://192.168.50.129:5173',
+  'http://136.239.248.58:5173'
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  })
+);
+
+const io = new Server(http, {
+  cors: {
+    origin: (origin, callback) => {
+      // allow Postman / server-side requests
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by Socket.IO CORS"));
+      }
+    },
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 const signatureDir = path.join(__dirname, "uploads", "signature");
 const authRoute = require("./routes/auth_routes/authRoutes");
@@ -19579,7 +19604,72 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get("/api/student_details/:id", async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    console.log("Fetching student details for person_id:", id);
+    const [rows] = await db3.execute(
+      `
+    SELECT DISTINCT
+      IFNULL(pgt.program_description, 'Not Currently Enrolled') AS program_description,
+      IFNULL(st.description, 'Not Currently Enrolled') AS section_description,
+      IFNULL(pgt.program_code, 'Not Currently Enrolled') AS program_code,
+      IFNULL(ylt.year_level_description, 'Not Currently Enrolled') AS year_level
+    FROM enrolled_subject AS es
+      INNER JOIN student_numbering_table AS snt ON es.student_number = snt.student_number
+      INNER JOIN person_table AS pt ON snt.person_id = pt.person_id
+      INNER JOIN curriculum_table AS cct ON es.curriculum_id = cct.curriculum_id
+      INNER JOIN program_table AS pgt ON cct.program_id = pgt.program_id
+      INNER JOIN dprtmnt_section_table AS dst ON es.department_section_id = dst.id
+      INNER JOIN section_table AS st ON dst.section_id = st.id
+      INNER JOIN student_status_table AS sst ON snt.student_number = sst.student_number
+      INNER JOIN year_level_table AS ylt ON sst.year_level_id = ylt.year_level_id
+      INNER JOIN active_school_year_table AS sy ON sst.active_school_year_id = sy.id
+    WHERE pt.person_id = ?`,
+      [id],
+    );
+
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Person not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Error fetching person:", error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+
+
+app.get("/announcements", async (req, res) => {
+  const { role } = req.query;
+
+  try {
+    let sql = `
+      SELECT * FROM announcements 
+      WHERE expires_at > NOW()
+    `;
+
+    let params = [];
+
+    if (role) {
+      sql += " AND (target_role = ? OR target_role = 'all')";
+      params.push(role);
+    }
+
+    console.log("Executing SQL:", sql, "with params:", params);
+
+    const [rows] = await db.query(sql, params);
+    console.log("Fetched announcements:", rows);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching announcements:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 const PORT = process.env.WEB_PORT || 5000;

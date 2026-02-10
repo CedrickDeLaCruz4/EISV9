@@ -230,11 +230,9 @@ const Dashboard3 = (props) => {
     const requiredFields = [
       // Original fields
       "schoolLevel", "schoolLastAttended", "schoolAddress",
-      "honor", "generalAverage", "yearGraduated", "strand",
+      "honor", "generalAverage", "yearGraduated",
 
-      // Newly added fields
-      "schoolLevel1", "schoolLastAttended1", "schoolAddress1", "courseProgram1",
-      "honor1", "generalAverage1", "yearGraduated1"
+   
     ];
 
     let newErrors = {};
@@ -526,14 +524,14 @@ const Dashboard3 = (props) => {
               {/* Icon */}
               <PictureAsPdfIcon
                 className="card-icon"
-                sx={{ fontSize: 35, color: "#6D2323", mr: 1.5 }}
+                sx={{ fontSize: 35, color: mainButtonColor, mr: 1.5 }}
               />
 
               {/* Label */}
               <Typography
                 className="card-text"
                 sx={{
-                  color: "#6D2323",
+                  color: mainButtonColor,
                   fontFamily: "Arial",
                   fontWeight: "bold",
                   fontSize: "0.85rem",
@@ -609,7 +607,7 @@ const Dashboard3 = (props) => {
                 <Box
                   sx={{
                     height: "2px",
-                    backgroundColor: "#6D2323",
+                    backgroundcolor: mainButtonColor,
                     flex: 1,
                     alignSelf: "center",
                     mx: 2,
@@ -642,7 +640,7 @@ const Dashboard3 = (props) => {
           </Container>
 
           <Container maxWidth="100%" sx={{ backgroundColor: "#f1f1f1", border: `2px solid ${borderColor}`, padding: 4, borderRadius: 2, boxShadow: 3 }}>
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Junior High School - Background:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Junior High School - Background:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -834,7 +832,7 @@ const Dashboard3 = (props) => {
 
 
 
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Senior High School - Background:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Senior High School - Background:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -852,7 +850,7 @@ const Dashboard3 = (props) => {
                   Educational Attainment
                 </Typography>
 
-                <FormControl fullWidth size="small" required error={!!errors.schoolLevel1}>
+                <FormControl fullWidth size="small" >
                   <InputLabel id="schoolLevel1-label">Educational Attainment</InputLabel>
                   <Select
                     labelId="schoolLevel1-label"
@@ -872,9 +870,7 @@ const Dashboard3 = (props) => {
                     <MenuItem value="ALS">ALS</MenuItem>
                   </Select>
 
-                  {errors.schoolLevel1 && (
-                    <FormHelperText>This field is required.</FormHelperText>
-                  )}
+                 
                 </FormControl>
               </Box>
 
@@ -893,8 +889,7 @@ const Dashboard3 = (props) => {
                   value={person.schoolLastAttended1 || ""}
                   onChange={handleChange}
                   onBlur={() => handleUpdate(person)}
-                  error={errors.schoolLastAttended1}
-                  helperText={errors.schoolLastAttended1 ? "This field is required." : ""}
+              
                 />
               </Box>
 
@@ -917,8 +912,7 @@ const Dashboard3 = (props) => {
                   value={person.schoolAddress1 || ""}
                   onChange={handleChange}
                   onBlur={() => handleUpdate(person)}
-                  error={errors.schoolAddress1}
-                  helperText={errors.schoolAddress1 ? "This field is required." : ""}
+                 
                 />
               </Box>
 
@@ -937,8 +931,7 @@ const Dashboard3 = (props) => {
                   value={person.courseProgram1 || ""}
                   onChange={handleChange}
                   onBlur={() => handleUpdate(person)}
-                  error={errors.courseProgram1}
-                  helperText={errors.courseProgram1 ? "This field is required." : ""}
+                 
                 />
               </Box>
             </Box>
@@ -966,8 +959,6 @@ const Dashboard3 = (props) => {
                   onChange={handleChange}
                   onBlur={() => handleUpdate(person)}
 
-                  error={errors.honor1}
-                  helperText={errors.honor1 ? "This field is required." : ""}
                 />
               </Box>
 
@@ -991,8 +982,7 @@ const Dashboard3 = (props) => {
                   value={person.generalAverage1 || ""}
                   onChange={handleChange}
                   onBlur={() => handleUpdate(person)}
-                  error={errors.generalAverage1}
-                  helperText={errors.generalAverage1 ? "This field is required." : ""}
+             
                 />
               </Box>
 
@@ -1017,21 +1007,20 @@ const Dashboard3 = (props) => {
                   value={person.yearGraduated1 || ""}
                   onChange={handleChange}
                   onBlur={() => handleUpdate(person)}
-                  error={errors.yearGraduated1}
-                  helperText={errors.yearGraduated1 ? "This field is required." : ""}
+               
                 />
               </Box>
 
             </Box>
 
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>
               Strand (For Senior High School)
             </Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
 
-            <FormControl fullWidth size="small" required error={!!errors.strand} className="mb-4">
+            <FormControl fullWidth size="small" className="mb-4">
               <InputLabel id="strand-label">Strand</InputLabel>
               <Select
                 labelId="strand-label"
@@ -1065,9 +1054,7 @@ const Dashboard3 = (props) => {
                 <MenuItem value="Sports Track">Sports Track</MenuItem>
                 <MenuItem value="Design and Arts Track">Design and Arts Track</MenuItem>
               </Select>
-              {errors.strand && (
-                <FormHelperText>This field is required.</FormHelperText>
-              )}
+    
             </FormControl>
 
             <Modal
@@ -1091,7 +1078,7 @@ const Dashboard3 = (props) => {
                   textAlign: "center",
                 }}
               >
-                <ErrorIcon sx={{ color: "#6D2323", fontSize: 50, mb: 2 }} />
+                <ErrorIcon sx={{ color: mainButtonColor, fontSize: 50, mb: 2 }} />
                 <Typography id="exam-permit-error-title" variant="h6" component="h2" color="maroon">
                   Exam Permit Notice
                 </Typography>
@@ -1101,7 +1088,7 @@ const Dashboard3 = (props) => {
                 <Button
                   onClick={handleCloseExamPermitModal}
                   variant="contained"
-                  sx={{ mt: 3, backgroundColor: "#6D2323", "&:hover": { backgroundColor: "#8B0000" } }}
+                  sx={{ mt: 3, backgroundcolor: mainButtonColor, "&:hover": { backgroundColor: "#8B0000" } }}
                 >
                   Close
                 </Button>

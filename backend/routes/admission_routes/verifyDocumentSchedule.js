@@ -454,5 +454,42 @@ router.get("/verify_schedules", async (req, res) => {
   }
 });
 
+router.get("/verify_schedules_with_count/:yearId/:semesterId", async (req, res) => {
+  const { yearId, semesterId } = req.params;
+
+  try {
+    const [rows] = await db.query(
+      `
+      SELECT 
+        s.schedule_id,
+        s.schedule_date,
+        s.building_description,
+        s.room_description,
+        s.start_time,
+        s.end_time,
+        s.evaluator,
+        s.room_quota,
+        s.created_at,
+        sy.year_id,
+        sy.semester_id,
+        IFNULL(COUNT(a.applicant_id), 0) AS current_occupancy,
+        (s.room_quota - IFNULL(COUNT(a.applicant_id), 0)) AS remaining_slots
+      FROM verify_document_schedule s
+      JOIN enrollment.active_school_year_table sy ON s.active_school_year_id = sy.id
+      LEFT JOIN verify_applicants a
+        ON s.schedule_id = a.schedule_id
+      WHERE sy.year_id = ? AND sy.semester_id = ?
+      GROUP BY s.schedule_id
+      ORDER BY s.schedule_date, s.start_time
+    `,
+      [yearId, semesterId]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("❌ Error fetching verify schedules:", err);
+    res.status(500).json({ error: "Failed to fetch verify schedules" });
+  }
+});
 
 module.exports = router;

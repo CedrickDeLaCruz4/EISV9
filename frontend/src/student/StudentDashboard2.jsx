@@ -586,14 +586,14 @@ const StudentDashboard2 = () => {
                             {/* Icon */}
                             <PictureAsPdfIcon
                                 className="card-icon"
-                                sx={{ fontSize: 35, color: "#6D2323", mr: 1.5 }}
+                                sx={{ fontSize: 35, color: mainButtonColor, mr: 1.5 }}
                             />
 
                             {/* Label */}
                             <Typography
                                 className="card-text"
                                 sx={{
-                                    color: "#6D2323",
+                                    color: mainButtonColor,
                                     fontFamily: "Arial",
                                     fontWeight: "bold",
                                     fontSize: "0.85rem",
@@ -690,7 +690,7 @@ const StudentDashboard2 = () => {
                                 <Box
                                     sx={{
                                         height: "2px",
-                                        backgroundColor: "#6D2323",
+                                        backgroundcolor: mainButtonColor,
                                         flex: 1,
                                         alignSelf: "center",
                                         mx: 2,
@@ -724,7 +724,7 @@ const StudentDashboard2 = () => {
 
 
                     <Container maxWidth="100%" sx={{ backgroundColor: "#f1f1f1", border: `2px solid ${borderColor}`, padding: 4, borderRadius: 2, boxShadow: 3 }}>
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Family Background:</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Family Background:</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -790,7 +790,7 @@ const StudentDashboard2 = () => {
 
 
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Father's Details</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Father's Details</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1184,7 +1184,7 @@ const StudentDashboard2 = () => {
 
 
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Mother's Details</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Mother's Details</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
                         <Box sx={{ mb: 2 }}>
@@ -1517,7 +1517,7 @@ const StudentDashboard2 = () => {
                         </Box>
 
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>In Case of Emergency</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>In Case of Emergency</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1656,7 +1656,7 @@ const StudentDashboard2 = () => {
                             </Box>
                         </Box>
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Guardian's Contact Information</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Guardian's Contact Information</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1708,7 +1708,7 @@ const StudentDashboard2 = () => {
                             </Box>
                         </Box>
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Family (Annual Income)</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Family (Annual Income)</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 

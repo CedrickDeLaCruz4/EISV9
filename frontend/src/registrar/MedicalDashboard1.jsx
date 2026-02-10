@@ -1389,14 +1389,14 @@ const MedicalDashboard1 = () => {
                 {/* Icon */}
                 <PictureAsPdfIcon
                   className="card-icon"
-                  sx={{ fontSize: 35, color: "#6D2323", mr: 1.5 }}
+                  sx={{ fontSize: 35, color: mainButtonColor, mr: 1.5 }}
                 />
 
                 {/* Label */}
                 <Typography
                   className="card-text"
                   sx={{
-                    color: "#6D2323",
+                    color: mainButtonColor,
                     fontFamily: "Arial",
                     fontWeight: "bold",
                     fontSize: "0.85rem",
@@ -1494,7 +1494,7 @@ const MedicalDashboard1 = () => {
                 <Box
                   sx={{
                     height: "2px",
-                    backgroundColor: "#6D2323",
+                    backgroundcolor: mainButtonColor,
                     flex: 1,
                     alignSelf: "center",
                     mx: 2,
@@ -1527,7 +1527,7 @@ const MedicalDashboard1 = () => {
           </Container>
 
           <Container maxWidth="100%" sx={{ backgroundColor: "#f1f1f1", border: `2px solid ${borderColor}`, padding: 4, borderRadius: 2, boxShadow: 3 }}>
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Personal Information:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Personal Information:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
 
             <br />
@@ -1663,7 +1663,7 @@ const MedicalDashboard1 = () => {
             <br />
 
 
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Course Program:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Course Program:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -1826,7 +1826,7 @@ const MedicalDashboard1 = () => {
             </Box>
 
 
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Person Details:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Person Details:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -2562,7 +2562,7 @@ const MedicalDashboard1 = () => {
             </Box>
 
             <br />
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Contact Information:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Contact Information:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -2641,7 +2641,7 @@ const MedicalDashboard1 = () => {
 
 
 
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Present Address:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Present Address:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
             <Box
@@ -2877,7 +2877,7 @@ const MedicalDashboard1 = () => {
 
 
 
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Permanent Address:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Permanent Address:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -3276,7 +3276,7 @@ const MedicalDashboard1 = () => {
                   <Typography
                     sx={{
                       fontSize: "18px",
-                      color: "#6D2323",
+                      color: mainButtonColor,
                       fontWeight: "bold",
                       mb: 1,
                     }}
@@ -3345,7 +3345,7 @@ const MedicalDashboard1 = () => {
                   textAlign: "center",
                 }}
               >
-                <ErrorIcon sx={{ color: "#6D2323", fontSize: 50, mb: 2 }} />
+                <ErrorIcon sx={{ color: mainButtonColor, fontSize: 50, mb: 2 }} />
                 <Typography id="exam-permit-error-title" variant="h6" component="h2" color="maroon">
                   Exam Permit Notice
                 </Typography>
@@ -3355,7 +3355,7 @@ const MedicalDashboard1 = () => {
                 <Button
                   onClick={handleCloseExamPermitModal}
                   variant="contained"
-                  sx={{ mt: 3, backgroundColor: "#6D2323", "&:hover": { backgroundColor: "#8B0000" } }}
+                  sx={{ mt: 3, backgroundcolor: mainButtonColor, "&:hover": { backgroundColor: "#8B0000" } }}
                 >
                   Close
                 </Button>

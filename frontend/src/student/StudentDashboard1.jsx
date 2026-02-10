@@ -944,14 +944,14 @@ const StudentDashboard1 = () => {
                             {/* Icon */}
                             <PictureAsPdfIcon
                                 className="card-icon"
-                                sx={{ fontSize: 35, color: "#6D2323", mr: 1.5 }}
+                                sx={{ fontSize: 35, color: mainButtonColor, mr: 1.5 }}
                             />
 
                             {/* Label */}
                             <Typography
                                 className="card-text"
                                 sx={{
-                                    color: "#6D2323",
+                                    color: mainButtonColor,
                                     fontFamily: "Arial",
                                     fontWeight: "bold",
                                     fontSize: "0.85rem",
@@ -1050,7 +1050,7 @@ const StudentDashboard1 = () => {
                                 <Box
                                     sx={{
                                         height: "2px",
-                                        backgroundColor: "#6D2323",
+                                        backgroundcolor: mainButtonColor,
                                         flex: 1,
                                         alignSelf: "center",
                                         mx: 2,
@@ -1082,7 +1082,7 @@ const StudentDashboard1 = () => {
                     </Container>
 
                     <Container maxWidth="100%" sx={{ backgroundColor: "#f1f1f1", border: "2px solid black", padding: 4, borderRadius: 2, boxShadow: 3 }}>
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Personal Information:</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Personal Information:</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1210,7 +1210,7 @@ const StudentDashboard1 = () => {
 
                         <br />
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Course Program:</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Course Program:</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1373,7 +1373,7 @@ const StudentDashboard1 = () => {
 
                         </Box>
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Person Details:</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Person Details:</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -2083,7 +2083,7 @@ const StudentDashboard1 = () => {
                         </Box>
 
                         <br />
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Contact Information:</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Contact Information:</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -2362,7 +2362,7 @@ const StudentDashboard1 = () => {
 
 
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Permanent Address:</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Permanent Address:</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -2639,7 +2639,7 @@ const StudentDashboard1 = () => {
                                             top: 8,
                                             right: 8,
                                             color: "#fff",
-                                            bgcolor: "#6D2323",
+                                            bgcolor: mainButtonColor,
                                             "&:hover": {
                                                 bgcolor: "#5a1f1f",
                                             },
@@ -2651,7 +2651,7 @@ const StudentDashboard1 = () => {
                                     {/* Header */}
                                     <Box
                                         sx={{
-                                            bgcolor: "#6D2323",
+                                            bgcolor: mainButtonColor,
                                             color: "white",
                                             py: 2,
                                             px: 3,
@@ -2752,7 +2752,7 @@ const StudentDashboard1 = () => {
                                     <Typography
                                         sx={{
                                             fontSize: "18px",
-                                            color: "#6D2323",
+                                            color: mainButtonColor,
                                             fontWeight: "bold",
                                             mb: 1,
                                         }}
@@ -2780,7 +2780,7 @@ const StudentDashboard1 = () => {
                                         fullWidth
                                         onClick={handleUpload}
                                         sx={{
-                                            backgroundColor: "#6D2323",
+                                            backgroundcolor: mainButtonColor,
                                             border: `2px solid ${borderColor}`,
                                             color: "white",
                                             fontWeight: "bold",

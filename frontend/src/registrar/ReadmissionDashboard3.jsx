@@ -760,14 +760,14 @@ const ReadmissionDashboard3 = () => {
               {/* Icon */}
               <PictureAsPdfIcon
                 className="card-icon"
-                sx={{ fontSize: 35, color: "#6D2323", mr: 1.5 }}
+                sx={{ fontSize: 35, color: mainButtonColor, mr: 1.5 }}
               />
 
               {/* Label */}
               <Typography
                 className="card-text"
                 sx={{
-                  color: "#6D2323",
+                  color: mainButtonColor,
                   fontFamily: "Arial",
                   fontWeight: "bold",
                   fontSize: "0.85rem",
@@ -873,7 +873,7 @@ const ReadmissionDashboard3 = () => {
                 <Box
                   sx={{
                     height: "2px",
-                    backgroundColor: "#6D2323",
+                    backgroundcolor: mainButtonColor,
                     flex: 1,
                     alignSelf: "center",
                     mx: 2,
@@ -905,7 +905,7 @@ const ReadmissionDashboard3 = () => {
           </Container>
 
           <Container maxWidth="100%" sx={{ backgroundColor: "#f1f1f1", border: `2px solid ${borderColor}`, padding: 4, borderRadius: 2, boxShadow: 3 }}>
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Junior High School - Background:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Junior High School - Background:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -1096,7 +1096,7 @@ const ReadmissionDashboard3 = () => {
            
 
 
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Senior High School - Background:</Typography>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Senior High School - Background:</Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
             <br />
 
@@ -1288,7 +1288,7 @@ const ReadmissionDashboard3 = () => {
                                  </Box>
                                </Box>
                    
-            <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>
+            <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>
               Strand (For Senior High School)
             </Typography>
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
@@ -1355,7 +1355,7 @@ const ReadmissionDashboard3 = () => {
                   textAlign: "center",
                 }}
               >
-                <ErrorIcon sx={{ color: "#6D2323", fontSize: 50, mb: 2 }} />
+                <ErrorIcon sx={{ color: mainButtonColor, fontSize: 50, mb: 2 }} />
                 <Typography id="exam-permit-error-title" variant="h6" component="h2" color="maroon">
                   Exam Permit Notice
                 </Typography>
@@ -1365,7 +1365,7 @@ const ReadmissionDashboard3 = () => {
                 <Button
                   onClick={handleCloseExamPermitModal}
                   variant="contained"
-                  sx={{ mt: 3, backgroundColor: "#6D2323", "&:hover": { backgroundColor: "#8B0000" } }}
+                  sx={{ mt: 3, backgroundcolor: mainButtonColor, "&:hover": { backgroundColor: "#8B0000" } }}
                 >
                   Close
                 </Button>

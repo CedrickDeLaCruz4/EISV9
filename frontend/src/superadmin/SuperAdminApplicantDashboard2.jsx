@@ -784,14 +784,14 @@ const SuperAdminApplicantDashboard2 = () => {
                             {/* Icon */}
                             <PictureAsPdfIcon
                                 className="card-icon"
-                                sx={{ fontSize: 35, color: "#6D2323", mr: 1.5 }}
+                                sx={{ fontSize: 35, color: mainButtonColor, mr: 1.5 }}
                             />
 
                             {/* Label */}
                             <Typography
                                 className="card-text"
                                 sx={{
-                                    color: "#6D2323",
+                                    color: mainButtonColor,
                                     fontFamily: "Arial",
                                     fontWeight: "bold",
                                     fontSize: "0.85rem",
@@ -887,7 +887,7 @@ const SuperAdminApplicantDashboard2 = () => {
                                 <Box
                                     sx={{
                                         height: "2px",
-                                        backgroundColor: "#6D2323",
+                                        backgroundcolor: mainButtonColor,
                                         flex: 1,
                                         alignSelf: "center",
                                         mx: 2,
@@ -920,7 +920,7 @@ const SuperAdminApplicantDashboard2 = () => {
 
 
                     <Container maxWidth="100%" sx={{ backgroundColor: "#f1f1f1", border: `2px solid ${borderColor}`, padding: 4, borderRadius: 2, boxShadow: 3 }}>
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Family Background:</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Family Background:</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -986,7 +986,7 @@ const SuperAdminApplicantDashboard2 = () => {
 
 
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Father's Details</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Father's Details</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1375,7 +1375,7 @@ const SuperAdminApplicantDashboard2 = () => {
 
 
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Mother's Details</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Mother's Details</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
                         <Box sx={{ mb: 2 }}>
@@ -1708,7 +1708,7 @@ const SuperAdminApplicantDashboard2 = () => {
                         </Box>
 
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>In Case of Emergency</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>In Case of Emergency</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1847,7 +1847,7 @@ const SuperAdminApplicantDashboard2 = () => {
                             </Box>
                         </Box>
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Guardian's Contact Information</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Guardian's Contact Information</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1899,7 +1899,7 @@ const SuperAdminApplicantDashboard2 = () => {
                             </Box>
                         </Box>
 
-                        <Typography style={{ fontSize: "20px", color: "#6D2323", fontWeight: "bold" }}>Family (Annual Income)</Typography>
+                        <Typography style={{ fontSize: "20px", color: mainButtonColor, fontWeight: "bold" }}>Family (Annual Income)</Typography>
                         <hr style={{ border: "1px solid #ccc", width: "100%" }} />
                         <br />
 
@@ -1953,7 +1953,7 @@ const SuperAdminApplicantDashboard2 = () => {
                                     textAlign: "center",
                                 }}
                             >
-                                <ErrorIcon sx={{ color: "#6D2323", fontSize: 50, mb: 2 }} />
+                                <ErrorIcon sx={{ color: mainButtonColor, fontSize: 50, mb: 2 }} />
                                 <Typography id="exam-permit-error-title" variant="h6" component="h2" color="maroon">
                                     Exam Permit Notice
                                 </Typography>
@@ -1963,7 +1963,7 @@ const SuperAdminApplicantDashboard2 = () => {
                                 <Button
                                     onClick={handleCloseExamPermitModal}
                                     variant="contained"
-                                    sx={{ mt: 3, backgroundColor: "#6D2323", "&:hover": { backgroundColor: "#8B0000" } }}
+                                    sx={{ mt: 3, backgroundcolor: mainButtonColor, "&:hover": { backgroundColor: "#8B0000" } }}
                                 >
                                     Close
                                 </Button>

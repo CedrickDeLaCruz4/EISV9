@@ -10,27 +10,27 @@ import {
     LinearProgress,
     Chip,
     TableContainer,
-    Paper,
     FormControl,
+    Paper,
+    InputLabel,
     Select,
-    TableHead,
-    TableCell,
-    TableRow,
-    Table,
     MenuItem,
-    TextField
+    TextField,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import API_BASE_URL from "../apiConfig";
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import PeopleIcon from '@mui/icons-material/People';
+import KeyIcon from "@mui/icons-material/Key";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import PeopleIcon from "@mui/icons-material/People";
+import CampaignIcon from "@mui/icons-material/Campaign";
 
-const InterviewScheduleHoverTile = () => {
-
-    const location = useLocation();
+const ScheduleHoverTile = () => {
     const navigate = useNavigate();
     const settings = useContext(SettingsContext);
 
@@ -38,16 +38,14 @@ const InterviewScheduleHoverTile = () => {
     const [borderColor, setBorderColor] = useState("#000000");
 
     const [schedules, setSchedules] = useState([]);
-    const [filteredSchedules, setFilteredSchedules] = useState([]);
-
     const [searchQuery, setSearchQuery] = useState("");
-    const [buildingList, setBuildingList] = useState([]);
-    const [selectedBuilding, setSelectedBuilding] = useState("");
+    const [filteredSchedules, setFilteredSchedules] = useState([]);
 
     const [schoolYears, setSchoolYears] = useState([]);
     const [schoolSemester, setSchoolSemester] = useState([]);
     const [selectedSchoolYear, setSelectedSchoolYear] = useState("");
     const [selectedSchoolSemester, setSelectedSchoolSemester] = useState("");
+
     const [person, setPerson] = useState({
         fromDate: "",
         toDate: "",
@@ -55,21 +53,20 @@ const InterviewScheduleHoverTile = () => {
         toTime: "",
     });
 
+  const tabs = [
+    { label: "Room Registration", to: "/room_registration", icon: <KeyIcon fontSize="large" /> },
+    { label: "Verify Documents Room Assignment", to: "/verify_document_schedule", icon: <MeetingRoomIcon fontSize="large" /> },
+    { label: "Verify Documents Schedule Management", to: "/verify_schedule", icon: <ScheduleIcon fontSize="large" /> },
+    { label: "Evaluator's Applicant List", to: "/evaluator_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+    { label: "Entrance Exam Room Assignment", to: "/assign_entrance_exam", icon: <MeetingRoomIcon fontSize="large" /> },
+    { label: "Entrance Exam Schedule Management", to: "/assign_schedule_applicant", icon: <ScheduleIcon fontSize="large" /> },
+    { label: "Proctor's Applicant List", to: "/admission_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
+    { label: "Announcement", to: "/announcement_for_admission", icon: <CampaignIcon fontSize="large" /> },
+  ];
 
-    const tabs = [
 
-        { label: "Qualifying / Interview Room Assignment", to: "/assign_qualifying_interview_exam", icon: <MeetingRoomIcon fontSize="large" /> },
-        { label: "Qualifying / Interview Schedule Management", to: "/assign_schedule_applicants_qualifying_interview", icon: <ScheduleIcon fontSize="large" /> },
-        { label: "Qualifying / Interviewer Applicant's List", to: "/enrollment_schedule_room_list", icon: <PeopleIcon fontSize="large" /> },
-
-
-
-
-    ];
-
-    const [activeStep, setActiveStep] = useState(2);
+    const [activeStep, setActiveStep] = useState(3);
     const [clickedSteps, setClickedSteps] = useState(Array(tabs.length).fill(false));
-
 
     const handleStepClick = (index, to) => {
         setActiveStep(index);
@@ -79,10 +76,11 @@ const InterviewScheduleHoverTile = () => {
 
     useEffect(() => {
         if (!settings) return;
-        setTitleColor(settings.title_color || "#000000");
-        setBorderColor(settings.border_color || "#000000");
+        if (settings.title_color) setTitleColor(settings.title_color);
+        if (settings.border_color) setBorderColor(settings.border_color);
     }, [settings]);
 
+    // Fetch school years, semesters, and active selection in order
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
@@ -97,6 +95,7 @@ const InterviewScheduleHoverTile = () => {
                     setSelectedSchoolYear(activeRes.data[0].year_id);
                     setSelectedSchoolSemester(activeRes.data[0].semester_id);
                 } else {
+                    // fallback to first available year/semester
                     setSelectedSchoolYear(yearsRes.data[0]?.year_id || "");
                     setSelectedSchoolSemester(semRes.data[0]?.semester_id || "");
                 }
@@ -106,6 +105,71 @@ const InterviewScheduleHoverTile = () => {
         };
         fetchInitialData();
     }, []);
+
+    const [buildingList, setBuildingList] = useState([]);
+    const [selectedBuilding, setSelectedBuilding] = useState("");
+
+    // Fetch schedules once school year & semester are set
+    useEffect(() => {
+        const fetchSchedules = async () => {
+            if (!selectedSchoolYear || !selectedSchoolSemester) return;
+            try {
+                const res = await axios.get(
+                    `${API_BASE_URL}/verify_schedules_with_count`
+                );
+                setSchedules(res.data);
+                setFilteredSchedules(res.data);
+
+                const uniqueBuildings = [...new Set(res.data.map(s => s.building_description))];
+                setBuildingList(uniqueBuildings);
+            } catch (err) {
+                console.error("Error fetching schedule tiles:", err);
+            }
+        };
+        fetchSchedules();
+    }, [selectedSchoolYear, selectedSchoolSemester]);
+
+    useEffect(() => {
+        const lowerQuery = searchQuery.toLowerCase();
+
+        const filtered = schedules.filter((s) => {
+            const evaluator = s.evaluator || "";
+            const building = s.building_description || "";
+
+            const matchesSearch =
+                evaluator.toLowerCase().includes(lowerQuery)
+                ||
+                building.toLowerCase().includes(lowerQuery) ||
+                (s.room_description || "").toLowerCase().includes(lowerQuery);
+
+            const matchesBuilding = selectedBuilding === "" || building === selectedBuilding;
+
+            const scheduleDate = new Date(s.schedule_date);
+            const fromDate = person.fromDate ? new Date(person.fromDate) : null;
+            const toDate = person.toDate ? new Date(person.toDate) : null;
+
+            const matchesDate =
+                (!fromDate || scheduleDate >= fromDate) &&
+                (!toDate || scheduleDate <= toDate);
+
+            // Convert times to comparable HH:mm
+            const scheduleStart = s.start_time ? s.start_time.slice(0, 5) : null;
+            const scheduleEnd = s.end_time ? s.end_time.slice(0, 5) : null;
+            const fromTime = person.fromTime ? person.fromTime : null;
+            const toTime = person.toTime ? person.toTime : null;
+
+            const matchesTime =
+                (!fromTime || scheduleStart >= fromTime) &&
+                (!toTime || scheduleEnd <= toTime);
+
+            return matchesSearch && matchesBuilding && matchesDate && matchesTime;
+        });
+
+        setFilteredSchedules(filtered);
+    }, [searchQuery, selectedBuilding, person, schedules]);
+
+
+
 
     const handleSchoolYearChange = (e) => setSelectedSchoolYear(e.target.value);
     const handleSchoolSemesterChange = (e) => setSelectedSchoolSemester(e.target.value);
@@ -120,100 +184,6 @@ const InterviewScheduleHoverTile = () => {
     const selectedSemesterLabel =
         schoolSemester.find((sem) => String(sem.semester_id) === String(selectedSchoolSemester))
             ?.semester_description || "selected semester";
-
-
-    useEffect(() => {
-        const fetchSchedules = async () => {
-            if (!selectedSchoolYear || !selectedSchoolSemester) return;
-
-            try {
-                const res = await axios.get(
-                    `${API_BASE_URL}/interview_schedules_with_count/${selectedSchoolYear}/${selectedSchoolSemester}`
-                );
-                setSchedules(res.data);
-                setFilteredSchedules(res.data);
-
-                const uniqueBuildings = [...new Set(res.data.map(s => s.building_description))];
-                setBuildingList(uniqueBuildings);
-            } catch (err) {
-                console.error("Error fetching interview schedules:", err);
-            }
-        };
-        fetchSchedules();
-    }, [selectedSchoolYear, selectedSchoolSemester]);
-
-    useEffect(() => {
-        const lowerQuery = searchQuery.toLowerCase().trim();
-
-        const filtered = schedules.filter((s) => {
-            const proctor = (s.proctor || "").toLowerCase().trim();
-            const interviewer = (s.interviewer || "").toLowerCase().trim();
-            const building = (s.building_description || "").toLowerCase().trim();
-            const room = (s.room_description || "").toLowerCase().trim();
-
-            const matchesSearch =
-                proctor.includes(lowerQuery) ||
-                interviewer.includes(lowerQuery) ||
-                building.includes(lowerQuery) ||
-                room.includes(lowerQuery);
-
-            const matchesBuilding =
-                selectedBuilding === "" || building.includes(selectedBuilding.toLowerCase().trim());
-
-            const scheduleDate = new Date(s.day_description);
-            const fromDate = person.fromDate ? new Date(person.fromDate) : null;
-            const toDate = person.toDate ? new Date(person.toDate) : null;
-
-            const matchesDate =
-                (!fromDate || scheduleDate >= fromDate) &&
-                (!toDate || scheduleDate <= toDate);
-
-            const scheduleStart = s.start_time ? s.start_time.slice(0, 5) : null;
-            const scheduleEnd = s.end_time ? s.end_time.slice(0, 5) : null;
-            const fromTime = person.fromTime || null;
-            const toTime = person.toTime || null;
-
-            const matchesTime =
-                (!fromTime || scheduleStart >= fromTime) &&
-                (!toTime || scheduleEnd <= toTime);
-
-            return matchesSearch && matchesBuilding && matchesDate && matchesTime;
-        });
-
-        setFilteredSchedules(filtered);
-    }, [searchQuery, selectedBuilding, person, schedules]);
-
-
-
-    const handleSearch = async (scheduleId = null) => {
-        try {
-            const { data } = await axios.get(`${API_BASE_URL}/api/interviewers`, {
-                params: {
-                    query: searchQuery || "", // fallback to empty string
-                    schedule: scheduleId,
-                },
-            });
-
-            setInterviewerData(data[0]?.schedule || null);
-            setApplicants(data[0]?.applicants || []);
-        } catch (err) {
-            console.error(err);
-            setApplicants([]); // clear on error
-            setInterviewerData(null);
-        }
-    };
-
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const scheduleId = params.get("schedule");
-        const interviewerName = params.get("interviewer");
-
-        if (scheduleId) {
-            setSearchQuery(interviewerName || "");
-            handleSearch(scheduleId); // pass schedule to fetch correct applicants
-        }
-    }, [location.search]);
-
 
     const formatTime12 = (timeString) => {
         if (!timeString) return "";
@@ -232,8 +202,8 @@ const InterviewScheduleHoverTile = () => {
     };
 
     return (
-          <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
-            {/* Title + Search */}
+        <Box sx={{ height: "calc(100vh - 150px)", overflowY: "auto", paddingRight: 1, backgroundColor: "transparent", mt: 1, padding: 2 }}>
+            {/* Title + Search Row */}
             <Box
                 sx={{
                     display: "flex",
@@ -243,6 +213,7 @@ const InterviewScheduleHoverTile = () => {
                     mb: 2,
                 }}
             >
+                {/* LEFT – Title */}
                 <Typography
                     variant="h4"
                     sx={{
@@ -251,33 +222,42 @@ const InterviewScheduleHoverTile = () => {
                         fontSize: "36px",
                     }}
                 >
-                    INTERVIEW ROOM MANAGEMENT
+                   EVALUATOR ROOM MANAGEMENT
                 </Typography>
 
-                <TextField
-                    variant="outlined"
-                    placeholder="Search Qualifying / Interviewer Name / Email"
-                    size="small"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)} // only update state
-                    sx={{ width: 450, backgroundColor: "#fff", borderRadius: 1, "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
-                    InputProps={{
-                        startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
-                    }}
-                />
+
+                {/* RIGHT – Search Field */}
+                <Box sx={{ display: "flex", alignItems: "center", mt: { xs: 2, md: 0 } }}>
+                    <TextField
+                        size="small"
+                        placeholder="Search Evaluator / Building / Room"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{
+                            width: 450,
+                            backgroundColor: "#fff",
+                            borderRadius: 1,
+                            "& .MuiOutlinedInput-root": {
+                                borderRadius: "10px",
+                            },
+                        }}
+                        InputProps={{
+                            startAdornment: <SearchIcon sx={{ mr: 1, color: "gray" }} />,
+                        }}
+                    />
+                </Box>
             </Box>
 
+
             <hr style={{ border: "1px solid #ccc", width: "100%" }} />
-            <br />
-
-
+            <div style={{ height: "30px" }}></div>
             <Box
                 sx={{
                     display: "flex",
                     justifyContent: "space-between",
                     flexWrap: "nowrap", // ❌ prevent wrapping
                     width: "100%",
-                    mt: 3,
+                    mt: 1,
                     gap: 2,
                 }}
             >
@@ -287,7 +267,7 @@ const InterviewScheduleHoverTile = () => {
                         onClick={() => handleStepClick(index, tab.to)}
                         sx={{
                             flex: `1 1 ${100 / tabs.length}%`, // evenly divide row
-                            height: 140,
+                            height: 135,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -302,7 +282,7 @@ const InterviewScheduleHoverTile = () => {
                                     : "0px 2px 6px rgba(0,0,0,0.15)",
                             transition: "0.3s ease",
                             "&:hover": {
-                                backgroundColor: activeStep === index ? "#000" : "#f5d98f",
+                                backgroundColor: activeStep === index ? "#000000" : "#f5d98f",
                             },
                         }}
                     >
@@ -317,8 +297,6 @@ const InterviewScheduleHoverTile = () => {
             </Box>
 
             <br />
-            <br />
-
             <TableContainer component={Paper} sx={{ width: '100%', border: `2px solid ${borderColor}`, }}>
                 <Table>
                     <TableHead sx={{ backgroundColor: settings?.header_color || "#1976d2" }}>
@@ -355,15 +333,6 @@ const InterviewScheduleHoverTile = () => {
                                 <Select
                                     value={selectedSchoolYear}
                                     onChange={handleSchoolYearChange}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: {
-                                            maxHeight: 200,
-                                            backgroundColor: "#fff",
-                                            marginTop: 1,
-                                            },
-                                        },
-                                    }}
                                 >
                                     {schoolYears.map((sy) => (
                                         <MenuItem value={sy.year_id} key={sy.year_id}>
@@ -381,14 +350,6 @@ const InterviewScheduleHoverTile = () => {
                                 <Select
                                     value={selectedSchoolSemester}
                                     onChange={handleSchoolSemesterChange}
-                                    sx={{ width: 200 }}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: {
-                                                marginTop: 1,
-                                            }
-                                        }
-                                    }}
                                 >
                                     {schoolSemester.map((sem) => (
                                         <MenuItem value={sem.semester_id} key={sem.semester_id}>
@@ -406,15 +367,6 @@ const InterviewScheduleHoverTile = () => {
                                 <Select
                                     value={selectedBuilding}
                                     onChange={(e) => setSelectedBuilding(e.target.value)}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: {
-                                            maxHeight: 200,
-                                            backgroundColor: "#fff",
-                                            marginTop: 1,
-                                            },
-                                        },
-                                    }}
                                 >
                                     <MenuItem value="">All Buildings</MenuItem>
                                     {buildingList.map((bldg, i) => (
@@ -483,8 +435,8 @@ const InterviewScheduleHoverTile = () => {
 
 
             <br />
+            <br />
 
-            {/* Schedule Tiles */}
             <Grid container spacing={3}>
                 {filteredSchedules.length === 0 && (
                     <Grid item xs={12}>
@@ -493,16 +445,13 @@ const InterviewScheduleHoverTile = () => {
                                 border: `2px dashed ${borderColor}`,
                                 borderRadius: 2,
                                 p: 3,
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                height: 250,
+                                textAlign: "center",
                                 backgroundColor: "#fafafa",
                             }}
                         >
-                            <Typography sx={{ color: "gray", fontSize: 18}}>
-                                There is no schedule in this Academic School Year ({selectedYearLabel}, {" "}
-                                {selectedSemesterLabel}).
+                            <Typography sx={{ fontWeight: "bold" }}>
+                                There is no schedule in this {selectedYearLabel} and{" "}
+                                {selectedSemesterLabel}.
                             </Typography>
                         </Box>
                     </Grid>
@@ -511,7 +460,11 @@ const InterviewScheduleHoverTile = () => {
                     <Grid item xs={12} sm={6} md={2.4} lg={2.4} key={schedule.schedule_id}>
                         <Card
                             onClick={() =>
-                                navigate(`/qualifying_interviewer_applicant_list?schedule=${schedule.schedule_id}&interviewer=${encodeURIComponent(schedule.interviewer)}`)
+                                navigate(
+                                    `/evaluator_applicant_list?evaluator=${encodeURIComponent(
+                                        schedule.evaluator
+                                    )}&schedule=${schedule.schedule_id}`
+                                )
                             }
                             sx={{
                                 cursor: "pointer",
@@ -540,7 +493,7 @@ const InterviewScheduleHoverTile = () => {
 
                             <CardContent>
                                 <Typography fontSize="14px" mb={0.5}>
-                                    <strong>Interviewer:</strong> {schedule.interviewer}
+                                    <strong>Evaluator:</strong> {schedule.evaluator}
                                 </Typography>
                                 <Typography fontSize="14px" mb={0.5}>
                                     <strong>Building:</strong> {schedule.building_description}
@@ -549,14 +502,23 @@ const InterviewScheduleHoverTile = () => {
                                     <strong>Room:</strong> {schedule.room_description}
                                 </Typography>
                                 <Typography fontSize="14px" mb={0.5}>
-                                    <strong>Date:</strong> {schedule.day_description}
+                                    <strong>Date:</strong>{" "}
+                                    {new Date(schedule.schedule_date)
+                                        .toLocaleDateString("en-US", {
+                                            weekday: "short",
+                                            year: "numeric",
+                                            month: "short",
+                                            day: "numeric",
+                                        })}
                                 </Typography>
                                 <Typography fontSize="14px" mb={1}>
-                                    <strong>Time:</strong> {formatTime12(schedule.start_time)} - {formatTime12(schedule.end_time)}
+                                    <strong>Time:</strong> {formatTime12(schedule.start_time)} -{" "}
+                                    {formatTime12(schedule.end_time)}
                                 </Typography>
 
-                                <Typography fontSize="14px" fontWeight="bold" mb={0.5}>
-                                    Applicants: {schedule.current_occupancy}/{schedule.room_quota}
+                                <Typography fontSize="14px" mb={0.5} fontWeight="bold">
+                                    <strong>Applicants:</strong>{" "}
+                                    {schedule.current_occupancy}/{schedule.room_quota}
                                 </Typography>
 
                                 <LinearProgress
@@ -567,16 +529,19 @@ const InterviewScheduleHoverTile = () => {
                                         borderRadius: 4,
                                         backgroundColor: "#eee",
                                         "& .MuiLinearProgress-bar": {
-                                            backgroundColor: getOccupancyColor(schedule.current_occupancy, schedule.room_quota),
+                                            backgroundColor: getOccupancyColor(
+                                                schedule.current_occupancy,
+                                                schedule.room_quota
+                                            ),
                                         },
                                     }}
                                 />
 
                                 <Box sx={{ mt: 1 }}>
                                     {schedule.current_occupancy >= schedule.room_quota ? (
-                                        <Chip label="Full" color="error" size="small" />
+                                        <Chip label="Occupied" color="error" size="small" />
                                     ) : schedule.current_occupancy / schedule.room_quota >= 0.7 ? (
-                                        <Chip label="Almost Full" color="warning" size="small" />
+                                        <Chip label="Almost Occupied" color="warning" size="small" />
                                     ) : (
                                         <Chip label="Available" color="success" size="small" />
                                     )}
@@ -586,10 +551,8 @@ const InterviewScheduleHoverTile = () => {
                     </Grid>
                 ))}
             </Grid>
-
-
         </Box>
     );
 };
 
-export default InterviewScheduleHoverTile;
+export default ScheduleHoverTile;
